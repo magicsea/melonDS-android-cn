@@ -13,6 +13,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import me.magnum.melonds.common.UriFileHandler
 import me.magnum.melonds.common.uridelegates.UriHandler
+import me.magnum.melonds.di.DatabaseModule
 import me.magnum.melonds.domain.repositories.SettingsRepository
 import me.magnum.melonds.migrations.Migrator
 import javax.inject.Inject
@@ -34,6 +35,8 @@ class MelonDSApplication : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+        // 方案B：安装后首次启动即部署内置成就库 + 冻结 hash 库刷新（免 adb）
+        DatabaseModule.seedRetroAchievementsDatabase(this)
         createNotificationChannels()
         applyTheme()
         performMigrations()

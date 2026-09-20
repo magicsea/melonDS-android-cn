@@ -23,10 +23,13 @@ import me.magnum.melonds.database.entities.retroachievements.RAUserAchievementEn
 class NoCacheRetroAchievementsDao(private val actualAchievementsDao: RetroAchievementsDao) : RetroAchievementsDao() {
 
     override suspend fun getGameSetMetadata(gameId: Long): RAGameSetMetadata? {
-        return null
+        // HACK(方案B): 从真实 DAO 读取本地注入的成就集元数据，使汉化 ROM 成就集走本地 DB 而非强制网络
+        return actualAchievementsDao.getGameSetMetadata(gameId)
     }
 
     override suspend fun updateGameSetMetadata(gameSetMetadata: RAGameSetMetadata) {
+        // HACK(方案B): 网络拉取成功后写入 meta，后续会话直接走本地 DB
+        actualAchievementsDao.updateGameSetMetadata(gameSetMetadata)
     }
 
     override suspend fun clearAllGameSetMetadataLastUserDataUpdate() {

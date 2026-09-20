@@ -23,7 +23,7 @@ fun RAAchievementSetEntity.mapToModel(achievements: List<RAAchievement>, leaderb
         id = RASetId(id),
         gameId = RAGameId(gameId),
         title = title,
-        type = RAAchievementSet.Type.valueOf(type),
+        type = runCatching { RAAchievementSet.Type.valueOf(type) }.getOrDefault(RAAchievementSet.Type.Core),
         iconUrl = URI(iconUrl).toURL(),
         achievements = achievements,
         leaderboards = leaderboards,

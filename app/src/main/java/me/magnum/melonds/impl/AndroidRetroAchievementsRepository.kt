@@ -92,6 +92,12 @@ class AndroidRetroAchievementsRepository(
         }
 
         val gameSetMetadata = retroAchievementsDao.getGameSetMetadata(gameId.id)
+            ?: RAGameSetMetadata(
+                gameId.id,
+                Clock.System.now() + 365.days,
+                Clock.System.now() + 365.days,
+                Clock.System.now() + 365.days,
+            )
         val currentMetadata = CurrentGameSetMetadata(gameId, gameSetMetadata)
 
         val gameDataResult = fetchGameData(gameId, gameHash, currentMetadata)
@@ -215,8 +221,9 @@ class AndroidRetroAchievementsRepository(
     }
 
     override suspend fun startSession(gameHash: String, forHardcoreMode: Boolean): Result<Unit> {
-        val gameId = getGameIdFromGameHash(gameHash).getOrNull() ?: return Result.failure(RAGameNotExist(gameHash))
-        return raApi.startSession(gameId, gameHash, forHardcoreMode)
+        getGameIdFromGameHash(gameHash).getOrNull() ?: return Result.failure(RAGameNotExist(gameHash))
+        // 方案B：离线直连本地成就库，跳过会话上报（联网失败会中断 runtime 启动）
+        return Result.success(Unit)
     }
 
     override suspend fun sendSessionHeartbeat(gameHash: String, forHardcoreMode: Boolean, richPresenceDescription: String?) {
